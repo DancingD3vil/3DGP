@@ -98,21 +98,17 @@
 
 			function setupBuffers()
 			{
-				var triangleVertices = [ 
-										-0.5, -0.5, 0.0,
-										0.0, 0.5, 0.0,
-										0.5, -0.5, 0.0,
-										];
+				var triangleVertices = [ -0.5, -0.5, 0.0,
+							 0.0, 0.5, 0.0,
+							 0.5, -0.5, 0.0];
 
 				trianglesVerticeBuffer = gl.createBuffer();
 				gl.bindBuffer(gl.ARRAY_BUFFER, trianglesVerticeBuffer);
 				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.STATIC_DRAW);	
 
-				var triangleVerticeColors = [ 
-											0.0, 1.0, 0.0,
-											0.0, 1.0, 0.0,
-											0.0, 1.0, 0.0,
-											];
+				var triangleVerticeColors = [ 0.0, 1.0, 0.0,
+							      0.0, 1.0, 0.0,
+							      0.0, 1.0, 0.0];
 
 				trianglesColorBuffer = gl.createBuffer();
 				gl.bindBuffer(gl.ARRAY_BUFFER, trianglesColorBuffer);
