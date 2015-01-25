@@ -9,11 +9,11 @@
 		<script>
 		// I'm not completely sure what's quad is supposed to be, so here's a triangle and a torus knot
 			var CANVAS_WIDTH = 800,
-				CANVAS_HEIGHT= 600;
+			    CANVAS_HEIGHT= 600;
 
 			var renderer = null,
-				scene = null,
-				camera = null;	
+			    scene = null,
+			    camera = null;	
 				
 			function initWebGL()
 			{
@@ -62,11 +62,11 @@
 				var a = new THREE.Geometry();
 				
 				var triangleVerts = [new THREE.Vector3(-5.0, -5.0, 0.0),
-									new THREE.Vector3(5.0, -5.0, 0.0),
-									new THREE.Vector3(0.0, 5.0, 0.0)];
+						     new THREE.Vector3(5.0, -5.0, 0.0),
+						     new THREE.Vector3(0.0, 5.0, 0.0)];
 				var colors = [new THREE.Color(0xFFFF00),
-							  new THREE.Color(0xFF00FF),
-							  new THREE.Color(0x00FFFF)];
+				              new THREE.Color(0xFF00FF),
+					      new THREE.Color(0x00FFFF)];
 				for(var i=0;i<triangleVerts.length;i++)
 					a.vertices.push(triangleVerts[i]);
 				a.faces.push( new THREE.Face3(0, 1, 2) );
