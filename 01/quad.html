@@ -5,11 +5,89 @@
 		<style>
 			body{ background-color: grey; }
 		</style>
+		<script src="three.js"></script>
 		<script>
+		// I'm not completely sure what's quad is supposed to be, so here's a triangle and a torus knot
+			var CANVAS_WIDTH = 800,
+				CANVAS_HEIGHT= 600;
+
+			var renderer = null,
+				scene = null,
+				camera = null;	
+				
+			function initWebGL()
+			{
+				setupRenderer();
+				setupScene();
+				setupCamera();
+
+				renderer.render(scene, camera);
+			}
+
+			function setupRenderer()
+			{
+				renderer = new THREE.WebGLRenderer();
+				renderer.setSize( CANVAS_WIDTH, CANVAS_HEIGHT );
+				renderer.setClearColor( 0xFFFFFF, CANVAS_HEIGHT );
+				document.body.appendChild(  renderer.domElement );
+			}
+
+			function setupScene()
+			{
+				scene = new THREE.Scene();				
+				addMesh();
+				addLight();
+			}
+
+			function setupCamera()
+			{
+				camera = new THREE.PerspectiveCamera(
+				    35,         					// Field of view
+				    CANVAS_WIDTH / CANVAS_HEIGHT,  	// Aspect ratio
+				    .1,    						    // Near clip plane
+				    10000  					        // Far clip plane
+				);
+				camera.position.set( 0, 0, 100 );
+				camera.lookAt( scene.position );
+				scene.add( camera );
+			}
+			
+			function addMesh()
+			{
+				var knot = new THREE.Mesh( 
+							new THREE.TorusKnotGeometry( 19, 3, 100, 16), 
+							new THREE.MeshLambertMaterial( { color: 0x0000FF } )
+					);
+				scene.add(knot);
+				var a = new THREE.Geometry();
+				
+				var triangleVerts = [new THREE.Vector3(-5.0, -5.0, 0.0),
+									new THREE.Vector3(5.0, -5.0, 0.0),
+									new THREE.Vector3(0.0, 5.0, 0.0)];
+				var colors = [new THREE.Color(0xFFFF00),
+							  new THREE.Color(0xFF00FF),
+							  new THREE.Color(0x00FFFF)];
+				for(var i=0;i<triangleVerts.length;i++)
+					a.vertices.push(triangleVerts[i]);
+				a.faces.push( new THREE.Face3(0, 1, 2) );
+				for(var i=0;i<colors.length;i++)
+					a.faces[0].vertexColors.push(colors[i]);
+				var mesh = new THREE.Mesh( 
+					a, 
+					new THREE.MeshBasicMaterial( { vertexColors: THREE.VertexColors	} )
+				);
+				scene.add(mesh);
+			}
+			
+			function addLight()
+			{
+				var light = new THREE.PointLight( 0xFFFFFF );
+				light.position.set( 0, 20, 10 );
+				scene.add(light);
+			}
+			
 			
 		</script>
 	</head>
-	<body>
-
-	</body>
+	<body onload="initWebGL()"></body>
 </html>
