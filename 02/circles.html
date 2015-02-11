@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Color</title>
+		<style>
+			body{ background-color: grey; }
+			canvas{ background-color: white; }
+		</style>
+		<script id="shader-vs" type="x-shader/x-vertex">
+			uniform float radius;
+			attribute float angle;
+			varying float vAngle;
+
+			vec4 transform(float a) {
+				return vec4(sin(radians(a))*radius,cos(radians(a))*radius,0.0,1.0);
+			}
+			
+			void main(void) {
+				vAngle = angle;
+				gl_Position = transform(angle);
+				gl_PointSize = 5.0;
+			}
+		</script>
+		<script id="shader-fs" type="x-shader/x-fragment">
+			varying highp float vAngle;
+			
+			highp vec4 color(highp float a) {
+				return vec4((sin(radians(a))+1.0)/2.0, (cos(radians(a))+1.0)/2.0, 0.0, 1.0);
+			}
+			
+			void main(void) {
+				gl_FragColor = color(vAngle);
+			}
+		</script>
+		<!--<script id="shader-vs" type="x-shader/x-vertex">
+			uniform float radius;
+			attribute float angle;
+			varying vec4 vColor;
+			
+			vec4 color(float a) {
+				return vec4((sin(radians(a))+1.0)/2.0, (cos(radians(a))+1.0)/2.0, 0.0, 1.0);
+			}
+
+			vec4 transform(float a) {
+				return vec4(sin(radians(a))*radius,cos(radians(a))*radius,0.0,1.0);
+			}
+			
+			void main(void) {
+				gl_Position = transform(angle);
+				gl_PointSize = 5.0;
+				vColor = color(angle);
+			}
+		</script>
+		<script id="shader-fs" type="x-shader/x-fragment">			
+			varying highp vec4 vColor;
+			
+			void main(void) {
+				gl_FragColor = vColor;
+			}
+		</script>
+		
+		-->
+		<script>
+			var gl = null,
+			canvas = null,
+			glProgram = null,
+			fragmentShader = null,
+			vertexShader = null;
+
+			var radius = 0.75;
+			var angle = 20;
+
+			function initWebGL()
+			{
+				canvas = document.getElementById("my-canvas");  
+				try{
+					gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");					
+				}catch(e){}
+
+				if(gl)
+				{
+					setupWebGL();
+					initShaders();
+					setupBuffers();
+					drawScene();	
+				}else{	
+					alert(  "Error: Your browser does not appear to support WebGL.");
+				}
+			}
+
+			function setupWebGL()
+			{				
+				gl.viewport(0, 0, canvas.width, canvas.height);
+			}
+
+			function initShaders()
+			{
+				//get shader source
+				var fs_source = document.getElementById('shader-fs').innerHTML,
+				vs_source = document.getElementById('shader-vs').innerHTML;
+					
+				//compile shaders	
+				vertexShader = makeShader(vs_source, gl.VERTEX_SHADER);
+				fragmentShader = makeShader(fs_source, gl.FRAGMENT_SHADER);
+
+				//create program
+				glProgram = gl.createProgram();
+
+				//attach and link shaders to the program
+				gl.attachShader(glProgram, vertexShader);
+				gl.attachShader(glProgram, fragmentShader);
+				gl.linkProgram(glProgram);
+
+				if (!gl.getProgramParameter(glProgram, gl.LINK_STATUS)) {
+					alert("Unable to initialize the shader program.");
+				}
+
+				//use program
+				gl.useProgram(glProgram);
+			}
+
+			function makeShader(src, type)
+			{
+				//compile the vertex shader
+				var shader = gl.createShader(type);
+				gl.shaderSource(shader, src);
+				gl.compileShader(shader);
+
+				if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+					alert("Error compiling shader: " + gl.getShaderInfoLog(shader));
+				}
+				return shader;
+			}
+
+			function setupBuffers()
+			{
+				var a = [];
+				
+				for(var i=0; i<360/angle; i++) 
+					a.push(angle*i);
+				
+				angleBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, angleBuffer);
+				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(a), gl.STATIC_DRAW);
+			}
+
+			function drawScene()
+			{
+				var radiusLocation = gl.getUniformLocation(glProgram, "radius");
+				gl.uniform1f(radiusLocation, radius);
+				var angleLocation = gl.getAttribLocation(glProgram, "angle");
+				gl.enableVertexAttribArray(angleLocation);
+				gl.bindBuffer(gl.ARRAY_BUFFER, angleBuffer);
+				gl.vertexAttribPointer(angleLocation, 1, gl.FLOAT, false, 0, 0);
+				if(document.getElementById("loop").checked == true)
+					gl.drawArrays(gl.LINE_LOOP, 0, 360/angle);
+				else if(document.getElementById("point").checked == true)
+					gl.drawArrays(gl.POINTS, 0, 360/angle);
+				else
+					gl.drawArrays(gl.TRIANGLE_FAN, 0, 360/angle);
+			}
+		</script>
+	</head>
+	<body onload="initWebGL()">
+		<div style="background-color:white; width: 600px">
+		<input id="poly" name="rendertype" type="radio" checked onclick="drawScene()">Polygon<br>
+		<input id="loop" name="rendertype" type="radio" onclick="drawScene()">Line loop<br>
+		<input id="point" name="rendertype" type="radio" onclick="drawScene()">Point sprites
+		</div>
+		<canvas id="my-canvas" width="600" height="600">
+		</canvas>
+	</body>
+</html>
