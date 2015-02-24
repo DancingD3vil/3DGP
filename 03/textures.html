@@ -24,13 +24,9 @@
 			
 			console.log(document.body);
 
-			// ## bootstrap functions
-			// initialiaze everything
-			init();
-			// make it move			
+			init();		
 			animate();
 
-			// ## Initialize everything
 			function init() {
 
 				// create the camera
@@ -39,8 +35,6 @@
 				// create the Scene
 				scene = new THREE.Scene();
 				
-				// ## Begining of the Skybox Code
-				
 				// load the cube textures
 				var urls = ["posx.jpg","negx.jpg",
 						"posy.jpg", "negy.jpg",
@@ -48,7 +42,7 @@
 				var textureCube	= THREE.ImageUtils.loadTextureCube( urls );
 				textureCube.format = THREE.RGBFormat;
 				
-				// init the cube shadder
+				// init the cube shader
 				var shader	= THREE.ShaderLib['cube'];;
 				var shader = THREE.ShaderLib['cube']; // init cube shader from built-in lib
 				shader.uniforms['tCube'].value = textureCube;
@@ -76,7 +70,6 @@
 				
 			}
 
-			// ## Animate and Display the Scene
 			function animate() {
 				render();
 				requestAnimationFrame( animate );
@@ -113,8 +106,6 @@
 
 			}
 
-
-			// ## Render the 3D Scene
 			function render() {
 				lat = Math.max( - 85, Math.min( 85, lat ) );
 				phi = THREE.Math.degToRad( 90 - lat );
