@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+	<head>
+		<title>three.js Triangular Prism</title>
+		<style>
+			body{ background-color: grey; }
+			canvas{ background-color: white; }
+		</style>
+		<script src="../lib/three.js"></script>
+		<body>
+		</body>
+		<script>
+			var startTime	= Date.now();
+			var container;
+			var camera, scene, renderer, stats;
+			var skyboxMesh;
+			var canvasheight = 900, canvaswidth = 1200;
+			var interacting = false,
+			onMouseDownMouseX = 0, onMouseDownMouseY = 0,
+			lon = 90, onMouseDownLon = 0,
+			lat = 0, onMouseDownLat = 0,
+			phi = 0, theta = 0,
+			target = new THREE.Vector3();
+			
+			console.log(document.body);
+
+			// ## bootstrap functions
+			// initialiaze everything
+			init();
+			// make it move			
+			animate();
+
+			// ## Initialize everything
+			function init() {
+
+				// create the camera
+				camera = new THREE.PerspectiveCamera( 70, canvaswidth/canvasheight, 1, 100000 );
+
+				// create the Scene
+				scene = new THREE.Scene();
+				
+				// ## Begining of the Skybox Code
+				
+				// load the cube textures
+				var urls = ["posx.jpg","negx.jpg",
+						"posy.jpg", "negy.jpg",
+						"posz.jpg", "negz.jpg" ];
+				var textureCube	= THREE.ImageUtils.loadTextureCube( urls );
+				textureCube.format = THREE.RGBFormat;
+				
+				// init the cube shadder
+				var shader	= THREE.ShaderLib['cube'];;
+				var shader = THREE.ShaderLib['cube']; // init cube shader from built-in lib
+				shader.uniforms['tCube'].value = textureCube;
+				var material = new THREE.ShaderMaterial( 
+					{ 
+						fragmentShader    : shader.fragmentShader,
+						vertexShader  : shader.vertexShader,
+						uniforms	: shader.uniforms,	
+						depthWrite: false,
+						side: THREE.BackSide
+					} 
+				)
+
+				// build the skybox Mesh
+				skyboxMesh	= new THREE.Mesh( new THREE.BoxGeometry( 100000, 100000, 100000, 1, 1, 1, null, true ), material );
+				// add it to the scene
+				scene.add(skyboxMesh);
+				
+				document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				document.addEventListener( 'mouseup', onDocumentMouseUp, false );
+
+				setupRenderer();
+				
+				
+			}
+
+			// ## Animate and Display the Scene
+			function animate() {
+				render();
+				requestAnimationFrame( animate );
+			}
+			
+			function onDocumentMouseDown( event ) {
+
+				event.preventDefault();
+
+				interacting = true;
+
+				onPointerDownPointerX = event.clientX;
+				onPointerDownPointerY = event.clientY;
+
+				onPointerDownLon = lon;
+				onPointerDownLat = lat;
+
+			}
+
+			function onDocumentMouseMove( event ) {
+
+				if ( interacting === true ) {
+
+					lon = ( onPointerDownPointerX - event.clientX ) * 0.1 + onPointerDownLon;
+					lat = ( event.clientY - onPointerDownPointerY ) * 0.1 + onPointerDownLat;
+
+				}
+
+			}
+
+			function onDocumentMouseUp( event ) {
+
+				interacting = false;
+
+			}
+
+
+			// ## Render the 3D Scene
+			function render() {
+				lat = Math.max( - 85, Math.min( 85, lat ) );
+				phi = THREE.Math.degToRad( 90 - lat );
+				theta = THREE.Math.degToRad( lon );
+
+				target.x = 500 * Math.sin( phi ) * Math.cos( theta );
+				target.y = 500 * Math.cos( phi );
+				target.z = 500 * Math.sin( phi ) * Math.sin( theta );
+
+				camera.lookAt( target );
+
+				renderer.render( scene, camera );
+			}
+			
+			function setupRenderer()
+			{
+				renderer = new THREE.WebGLRenderer( { clearColor: 0x007700, clearAlpha: 1 } );
+				renderer.setSize( canvaswidth, canvasheight );
+			
+				//where to add the canvas element
+				document.body.appendChild(  renderer.domElement );
+			}
+
+		</script>
+	</head>
+</html>
