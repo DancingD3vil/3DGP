@@ -10,19 +10,14 @@
 		<body>
 		</body>
 		<script>
-			var startTime	= Date.now();
-			var container;
-			var camera, scene, renderer, stats;
+			var camera, scene, renderer;
 			var skyboxMesh;
 			var canvasheight = window.innerHeight, canvaswidth = window.innerWidth;
 			var interacting = false,
-			onMouseDownMouseX = 0, onMouseDownMouseY = 0,
-			lon = 90, onMouseDownLon = 0,
-			lat = 0, onMouseDownLat = 0,
+			lon = 90,
+			lat = 0,
 			phi = 0, theta = 0,
 			target = new THREE.Vector3();
-			
-			console.log(document.body);
 
 			init();		
 			animate();
