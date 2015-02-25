@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 	<head>
-		<title>three.js Triangular Prism</title>
+		<title>Skybox thingy</title>
 		<style>
 			body{ background-color: grey; }
 			canvas{ background-color: white; }
@@ -14,7 +14,7 @@
 			var container;
 			var camera, scene, renderer, stats;
 			var skyboxMesh;
-			var canvasheight = 900, canvaswidth = 1200;
+			var canvasheight = window.innerHeight, canvaswidth = window.innerWidth;
 			var interacting = false,
 			onMouseDownMouseX = 0, onMouseDownMouseY = 0,
 			lon = 90, onMouseDownLon = 0,

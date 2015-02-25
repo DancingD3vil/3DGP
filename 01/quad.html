@@ -5,9 +5,8 @@
 		<style>
 			body{ background-color: grey; }
 		</style>
-		<script src="three.js"></script>
+		<script src="../lib/three.js"></script>
 		<script>
-		// I'm not completely sure what's quad is supposed to be, so here's a triangle and a torus knot
 			var CANVAS_WIDTH = 800,
 			    CANVAS_HEIGHT= 600;
 
@@ -36,7 +35,7 @@
 			{
 				scene = new THREE.Scene();				
 				addMesh();
-				addLight();
+				//addLight();
 			}
 
 			function setupCamera()
@@ -55,11 +54,11 @@
 			function addMesh()
 			{
 				var knot = new THREE.Mesh( 
-							new THREE.TorusKnotGeometry( 19, 3, 100, 16), 
-							new THREE.MeshLambertMaterial( { color: 0xFF0000 } )
+							new THREE.BoxGeometry( 19, 19, 100, 16), 
+							new THREE.MeshBasicMaterial( { color: 0xFF0000 } )
 					);
 				scene.add(knot);
-				var a = new THREE.Geometry();
+				/*var a = new THREE.Geometry();
 				
 				var triangleVerts = [new THREE.Vector3(-5.0, -5.0, 0.0),
 						     new THREE.Vector3(5.0, -5.0, 0.0),
@@ -76,7 +75,7 @@
 					a, 
 					new THREE.MeshBasicMaterial( { vertexColors: THREE.VertexColors	} )
 				);
-				scene.add(mesh);
+				scene.add(mesh);*/
 			}
 			
 			function addLight()
