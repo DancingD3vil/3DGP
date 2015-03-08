@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Arm thingy</title>
+		<style>
+			body{ background-color: grey; }
+			canvas{ background-color: white; }
+		</style>
+		<script src="../lib/three.js"></script>
+		<body>
+		</body>
+		<script>
+			var camera, scene, renderer;
+			var canvasheight = window.innerHeight, canvaswidth = window.innerWidth,
+			shoulder, //sphere
+			upperArm, //cube
+			elbow, //sphere
+			lowerArm, //*cube
+			hand, //cube
+			thumb, indexF, middleF, pinky, // cube (thumb + three others)
+			target = new THREE.Vector3(),
+			shoulderRotAngle = 0, elbowRotAngle = 0, handRotAngle = 0,
+			mouseDown = false, xOnDown, yOnDown,
+			theta = 0, phi = 0, onMouseDownTheta, onMouseDownPhi, radius = 35;
+
+			init();		
+			animate();
+
+			function init() {
+
+				// create the camera
+				camera = new THREE.PerspectiveCamera( 70, canvaswidth/canvasheight, 0.1, 1000 );
+				camera.position.z = radius;
+				camera.position.y = 15;
+
+				// create the Scene
+				scene = new THREE.Scene();
+				
+				scene.add(camera);
+	
+				shoulder = new THREE.Mesh(new THREE.SphereGeometry( 4, 10, 10 ), new THREE.MeshBasicMaterial({color : new THREE.Color(0xFF00FF)}));
+				upperArm = new THREE.Mesh(new THREE.BoxGeometry( 3, 10, 3 ), new THREE.MeshBasicMaterial({color : new THREE.Color(0xFF0000)}));
+				elbow = new THREE.Mesh(new THREE.SphereGeometry( 3, 10, 10 ), new THREE.MeshBasicMaterial({color : new THREE.Color(0x0000FF)}));
+				lowerArm = new THREE.Mesh(new THREE.BoxGeometry( 3, 10, 3 ), new THREE.MeshBasicMaterial({color : new THREE.Color(0x00FFFF)}));
+				hand = new THREE.Mesh(new THREE.BoxGeometry( 4, 4, 4 ), new THREE.MeshBasicMaterial({color : new THREE.Color(0xFFFF00)}));
+				thumb = new THREE.Mesh(new THREE.BoxGeometry( 3, 1, 1), new THREE.MeshBasicMaterial({color : new THREE.Color(0x00FF00)}));
+				indexF = new THREE.Mesh(new THREE.BoxGeometry( 1, 4, 1 ), new THREE.MeshBasicMaterial({color : new THREE.Color(0x00FF00)}));
+				middleF = new THREE.Mesh(new THREE.BoxGeometry( 1, 4, 1 ), new THREE.MeshBasicMaterial({color : new THREE.Color(0x00FF00)}));
+				pinky = new THREE.Mesh(new THREE.BoxGeometry( 1, 4, 1 ), new THREE.MeshBasicMaterial({color : new THREE.Color(0x00FF00)}));
+				
+				shoulder.add(upperArm);
+				upperArm.add(elbow);
+				elbow.add(lowerArm);
+				lowerArm.add(hand);
+				hand.add(thumb);
+				hand.add(indexF);
+				hand.add(middleF);
+				hand.add(pinky);
+				
+				upperArm.position.y = 6;
+				elbow.position.y = 6;
+				lowerArm.position.y = 7;
+				hand.position.y = 6.5;
+				thumb.position.x = 2.8;	
+				thumb.rotation.z = Math.PI/4;
+				indexF.position.y = 3;
+				indexF.position.x = 1.5;	
+				middleF.position.y = 3;
+				pinky.position.y = 3;
+				pinky.position.x = -1.5;	
+
+				scene.add(shoulder);	
+				
+				setupRenderer();
+				
+				window.addEventListener("resize", function(){
+					canvasheight = window.innerHeight;
+					canvaswidth = window.innerWidth;
+					camera.aspect = canvaswidth/canvasheight;
+					camera.updateProjectionMatrix();
+					renderer.setSize( canvaswidth, canvasheight );
+				});
+				
+				document.addEventListener( 'mousedown', onMouseDown, false );
+				document.addEventListener( 'mousemove', onMouseMove, false );
+				document.addEventListener( 'mouseup', onMouseUp, false );
+			}
+			
+			function onMouseDown(event){
+				mouseDown = true;
+				xOnDown = event.clientX;
+				yOnDown = event.clientY;
+				onMouseDownTheta = theta;
+				onMouseDownPhi = phi;
+			}
+			
+			function onMouseMove(event){
+				if(mouseDown == true) {
+					theta = - ( ( event.clientX - xOnDown ) * 0.5 )
+							+ onMouseDownTheta;
+					phi = ( ( event.clientY - yOnDown) * 0.5 )
+						  + onMouseDownPhi;
+
+					phi = Math.min( 180, Math.max( 0, phi ) );
+
+					camera.position.x = radius * Math.sin( theta * Math.PI / 360 )
+										* Math.cos( phi * Math.PI / 360 );
+					camera.position.y = radius * Math.sin( phi * Math.PI / 360 );
+					camera.position.z = radius * Math.cos( theta * Math.PI / 360 )
+										* Math.cos( phi * Math.PI / 360 );
+					camera.updateMatrix();
+				}
+			}
+			
+			function onMouseUp(event){
+				mouseDown = false;
+			}
+
+			function animate() {
+				render();
+				requestAnimationFrame( animate );
+			}
+			
+
+			function render() {
+				target = new THREE.Vector3(shoulder.position.x + upperArm.position.x + elbow.position.x,
+										   shoulder.position.y + upperArm.position.y + elbow.position.y,
+										   shoulder.position.z + upperArm.position.z + elbow.position.z);
+				camera.lookAt( target );
+				
+				shoulderRotAngle += 0.01;
+				elbowRotAngle += 0.01;
+				handRotAngle += 0.01;
+				
+				shoulder.rotation.z = Math.sin(shoulderRotAngle);
+				elbow.rotation.z = Math.cos(elbowRotAngle);
+				hand.rotation.x = Math.sin(handRotAngle);
+
+				renderer.render( scene, camera );
+			}
+			
+			function setupRenderer()
+			{
+				renderer = new THREE.WebGLRenderer();
+				//renderer.setClearColor(0xffffff);
+				renderer.setSize( canvaswidth, canvasheight );
+			
+				//where to add the canvas element
+				document.body.appendChild(  renderer.domElement );
+				renderer.render( scene, camera );
+			}
+
+		</script>
+	</head>
+</html>
