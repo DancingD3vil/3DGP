@@ -1,0 +1,79 @@
+<?doctype HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./lib/jquery-1.11.2.min.js"></script>
+  <script src="./lib/three.js"></script>
+  <script src="./lib/d3.v3.js"></script>
+  <script src="scene.js"></script>
+  <!-- vertex shader for custom lighting -->
+  <script id="light-vs" type="x-shader/x-vertex">
+	varying vec2 v_uv;
+	varying vec3 v_normal;
+	varying vec4 ecPos;
+	varying vec4 v_color;
+
+	void main() {
+		v_color = vec4(1);
+		v_normal = normalize(normalMatrix * normal);
+		ecPos = modelViewMatrix * vec4(position,1);
+		v_uv = uv;
+		gl_Position = projectionMatrix * ecPos;
+    }
+  </script>
+  <!-- fragment shader for custom lighting -->
+  <script id="light-fs" type="x-shader/x-fragment">
+    uniform sampler2D map;
+    // global ambient
+    uniform vec4 u_ambient;
+
+    uniform vec3 u_dirlightpos;
+    uniform vec4 u_dirlight;
+
+    uniform vec3 u_spotlightpos;
+    uniform vec3 u_spotlightdir;
+    uniform vec4 u_spotlight;
+    uniform float u_spotlightdis;
+    uniform float u_spotlightint;
+    uniform float u_spotlightexp;
+    uniform float u_spotlightang;
+
+    //varying vec4 v_color;
+    varying vec2 v_uv;
+	varying vec4 v_color;
+    varying vec3 v_normal;
+    varying vec4 ecPos;
+
+    void main(){
+		vec4 lightdir = viewMatrix * vec4(u_dirlightpos, 0.0);
+		float directional = max(dot( v_normal, normalize(lightdir.xyz) ), 0.0);
+
+		float spot = 0.0;
+		vec4 spotLightViewPos = viewMatrix * vec4(u_spotlightpos, 1.0);
+		vec3 spotLightDir = spotLightViewPos.xyz - ecPos.xyz;
+
+		float NdotL = max(dot(v_normal, normalize(spotLightDir)), 0.0);
+		if (NdotL > 0.0) {
+			float spotEffect = dot(normalize(u_spotlightdir), normalize(-spotLightDir));
+			if (spotEffect > u_spotlightang) {
+				spotEffect = pow(spotEffect, u_spotlightexp);
+
+				float spotDistance = 1.0;
+				if (u_spotlightdis > 0.0) {
+				  spotDistance = 1.0 - min( ( length( spotLightDir ) / u_spotlightdis ), 1.0 );
+				}
+
+				spot = NdotL * spotDistance * spotEffect * u_spotlightint;
+			}
+		}
+
+		// combine texel color with received color from vertex shader
+		gl_FragColor = texture2D(map, v_uv) * v_color * vec4(u_ambient.xyz + directional * u_dirlight.xyz + spot * u_spotlight.xyz, 1.0);
+    }
+  </script>
+</head>
+<body>
+<div id="main" style="border: solid 1px;" width="800" height="600"></div>
+<div id="fps" style="position:absolute;width:100px;height:50px;top:10px; left:10px;"></div>
+</body>
+</html>
